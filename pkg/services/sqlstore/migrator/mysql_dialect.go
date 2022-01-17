@@ -93,15 +93,15 @@ func (db *MySQLDialect) SQLType(c *Column) string {
 }
 
 func (db *MySQLDialect) UpdateTableSQL(tableName string, columns []*Column) string {
+	stmtPrefix := "ALTER TABLE " + db.Quote(tableName)
+
 	var statements = []string{}
-
-	statements = append(statements, "DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-
+	statements = append(statements, stmtPrefix+" DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;")
 	for _, col := range columns {
-		statements = append(statements, "MODIFY "+col.StringNoPk(db))
+		statements = append(statements, stmtPrefix+" MODIFY "+col.StringNoPk(db)+";")
 	}
 
-	return "ALTER TABLE " + db.Quote(tableName) + " " + strings.Join(statements, ", ") + ";"
+	return strings.Join(statements, " ")
 }
 
 func (db *MySQLDialect) IndexCheckSQL(tableName, indexName string) (string, []interface{}) {
